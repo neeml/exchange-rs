@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 The Neeml Developers
+#
+# SPDX-License-Identifier: Apache-2.0
+
 { pkgs, ... }:
 {
   packages = with pkgs; [ openssl.dev ];
