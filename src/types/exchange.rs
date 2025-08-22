@@ -6,26 +6,35 @@ use std::ops::Not;
 
 type Result<T> = anyhow::Result<T, Box<dyn std::error::Error>>;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum ExchangeApiKind {
-    Ews,
-    Graph,
+// --- Sealed trait for Exchange Server types ---
+mod private {
+    pub trait Sealed {}
 }
 
+pub trait ExchangeServerType: private::Sealed {}
+
+// --- Marker structs for each server type ---
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum ExchangeServerKind {
-    Exchange2013(ExchangeApiKind),
-    Exchange2016(Vec<ExchangeApiKind>),
-    Exchange2019(Vec<ExchangeApiKind>),
-    ExchangeOnline(ExchangeApiKind),
-}
+pub struct Exchange2013;
+impl private::Sealed for Exchange2013 {}
+impl ExchangeServerType for Exchange2013 {}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum ExchangeServer {
-    OnPremise(ExchangeServerKind),
-    Online(ExchangeServerKind),
-}
+pub struct Exchange2016;
+impl private::Sealed for Exchange2016 {}
+impl ExchangeServerType for Exchange2016 {}
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Exchange2019;
+impl private::Sealed for Exchange2019 {}
+impl ExchangeServerType for Exchange2019 {}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ExchangeOnline;
+impl private::Sealed for ExchangeOnline {}
+impl ExchangeServerType for ExchangeOnline {}
+
+// --- Connection State ---
 #[derive(Default, Clone, PartialEq, Eq)]
 pub enum ExchangeServerState {
     Connected,
@@ -35,19 +44,21 @@ pub enum ExchangeServerState {
     Disconnected,
 }
 
-pub struct ExchangeConnection<ServerType = ExchangeServer, ServerState = ExchangeServerState> {
+// --- Generic ExchangeConnection ---
+pub struct ExchangeConnection<ServerType: ExchangeServerType> {
     server_type: ServerType,
-    server_state: ServerState,
+    server_state: ExchangeServerState,
 }
 
-impl ExchangeConnection {
-    pub fn new(server_type: ExchangeServer, server_state: ExchangeServerState) -> Result<Self> {
-        Ok(Self {
+impl<ServerType: ExchangeServerType> ExchangeConnection<ServerType> {
+    pub fn new(server_type: ServerType) -> Self {
+        Self {
             server_type,
-            server_state,
-        })
+            server_state: ExchangeServerState::Disconnected,
+        }
     }
 
+    // ... other common methods
     pub fn connected(&self) -> bool {
         self.server_state == ExchangeServerState::Connected
     }
@@ -63,46 +74,42 @@ impl ExchangeConnection {
     pub fn unauthenticated(&self) -> bool {
         self.authenticated().not()
     }
+}
 
-    pub fn on_premise(&self) -> bool {
-        match self.server_type {
-            ExchangeServer::OnPremise(_) => true,
-            _ => false,
-        }
+// --- API-specific implementations ---
+
+// For types that support EWS
+pub trait EwsCompatible {}
+
+impl EwsCompatible for Exchange2016 {}
+impl EwsCompatible for Exchange2019 {}
+
+impl<ServerType: ExchangeServerType + EwsCompatible> ExchangeConnection<ServerType> {
+    pub async fn ews_operation(&self) -> Result<()> {
+        // EWS-specific async logic here
+        Ok(())
     }
 
-    pub fn exchange_online(&self) -> bool {
-        match self.server_type {
-            ExchangeServer::Online(_) => true,
-            _ => false,
-        }
+    #[cfg(feature = "blocking")]
+    pub fn blocking_ews_operation(&self) -> Result<()> {
+        tokio::runtime::Runtime::new().unwrap().block_on(self.ews_operation())
+    }
+}
+
+// For types that support Graph API
+pub trait GraphApiCompatible {}
+impl GraphApiCompatible for Exchange2016 {}
+impl GraphApiCompatible for Exchange2019 {}
+impl GraphApiCompatible for ExchangeOnline {}
+
+impl<ServerType: ExchangeServerType + GraphApiCompatible> ExchangeConnection<ServerType> {
+    pub async fn graph_operation(&self) -> Result<()> {
+        // Graph API-specific async logic here
+        Ok(())
     }
 
-    pub fn is_ews(&self) -> bool {
-        match self.server_type {
-            ExchangeServer::OnPremise(ExchangeServerKind::Exchange2013(ExchangeApiKind::Ews)) => {
-                true
-            }
-            ExchangeServer::OnPremise(ExchangeServerKind::Exchange2016(ref api)) => {
-                api.iter().any(|api| api == &ExchangeApiKind::Ews)
-            }
-            ExchangeServer::OnPremise(ExchangeServerKind::Exchange2019(ref api)) => {
-                api.iter().any(|api| api == &ExchangeApiKind::Ews)
-            }
-            _ => false,
-        }
-    }
-
-    pub fn is_graph(&self) -> bool {
-        match self.server_type {
-            ExchangeServer::OnPremise(ExchangeServerKind::Exchange2016(ref api)) => {
-                api.iter().any(|api| api == &ExchangeApiKind::Graph)
-            }
-            ExchangeServer::OnPremise(ExchangeServerKind::Exchange2019(ref api)) => {
-                api.iter().any(|api| api == &ExchangeApiKind::Graph)
-            }
-            ExchangeServer::Online(ExchangeServerKind::ExchangeOnline(_)) => true,
-            _ => false,
-        }
+    #[cfg(feature = "blocking")]
+    pub fn blocking_graph_operation(&self) -> Result<()> {
+        tokio::runtime::Runtime::new().unwrap().block_on(self.graph_operation())
     }
 }
