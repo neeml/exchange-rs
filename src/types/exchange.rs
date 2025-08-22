@@ -14,10 +14,7 @@ mod private {
 pub trait ExchangeServerType: private::Sealed {}
 
 // --- Marker structs for each server type ---
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Exchange2013;
-impl private::Sealed for Exchange2013 {}
-impl ExchangeServerType for Exchange2013 {}
+
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Exchange2016;
