@@ -899,8 +899,9 @@ dependencies = [
 [[package]]
 name = "ews"
 version = "0.1.0"
-source = "git+https://github.com/thunderbird/ews-rs?rev=e5249875870fcd4bbbb3bfc37384e39aa8875f5b#e5249875870fcd4bbbb3bfc37384e39aa8875f5b"
+source = "git+https://github.com/thunderbird/ews-rs?rev=31d1c1d137f02dd5fa457757a141286093d5e362#31d1c1d137f02dd5fa457757a141286093d5e362"
 dependencies = [
+ "ews_proc_macros",
  "log",
  "quick-xml",
  "serde",
@@ -908,6 +909,15 @@ dependencies = [
  "thiserror 1.0.69",
  "time 0.3.36",
  "xml_struct",
+]
+
+[[package]]
+name = "ews_proc_macros"
+version = "0.1.0"
+source = "git+https://github.com/thunderbird/ews-rs?rev=31d1c1d137f02dd5fa457757a141286093d5e362#31d1c1d137f02dd5fa457757a141286093d5e362"
+dependencies = [
+ "quote",
+ "syn 2.0.87",
 ]
 
 [[package]]
