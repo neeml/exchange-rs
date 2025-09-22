@@ -30,7 +30,7 @@ graph-rs-sdk = { version = "3.0.1", default-features = false, features = ["rustl
 melib = "0.8.12"
 ms-autodiscover = "0.3.3"
 reqwest = { version = "0.12.9", optional = true }
-serde = { version = "1.0.225", features = ["derive"] }
+serde = { version = "1.0.226", features = ["derive"] }
 serde_json = "1.0.145"
 thiserror = "2.0.16"
 tokio = { version = "1.47.1", features = ["full"] }
