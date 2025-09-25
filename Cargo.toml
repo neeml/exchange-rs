@@ -23,7 +23,7 @@ ews = ["dep:ews", "xml_struct", "xml_struct_derive", "reqwest"]
 graph = ["graph-rs-sdk"]
 
 [dependencies]
-anyhow = "1.0.99"
+anyhow = "1.0.100"
 ews = { rev = "e5249875870fcd4bbbb3bfc37384e39aa8875f5b", git = "https://github.com/thunderbird/ews-rs", optional = true }
 file-format = "0.28.0"
 graph-rs-sdk = { version = "3.0.1", default-features = false, features = ["rustls-tls"], optional = true }
