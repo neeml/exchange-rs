@@ -33,7 +33,7 @@ reqwest = { version = "0.12.9", optional = true }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.148"
 thiserror = "2.0.17"
-tokio = { version = "1.48.0", features = ["full"] }
+tokio = { version = "1.49.0", features = ["full"] }
 xml_struct = { rev = "87723b90425d474fd29095d8b710baefd7c9b13a", git = "https://github.com/thunderbird/xml-struct-rs", optional = true }
 xml_struct_derive = { rev = "87723b90425d474fd29095d8b710baefd7c9b13a", git = "https://github.com/thunderbird/xml-struct-rs", optional = true }
 
