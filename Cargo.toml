@@ -27,7 +27,7 @@ anyhow = "1.0.100"
 ews = { rev = "e5249875870fcd4bbbb3bfc37384e39aa8875f5b", git = "https://github.com/thunderbird/ews-rs", optional = true }
 file-format = "0.28.0"
 graph-rs-sdk = { version = "3.0.1", default-features = false, features = ["rustls-tls"], optional = true }
-melib = "0.8.12"
+melib = "0.8.13"
 ms-autodiscover = "0.3.3"
 reqwest = { version = "0.12.9", optional = true }
 serde = { version = "1.0.228", features = ["derive"] }
